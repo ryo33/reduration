@@ -59,4 +59,5 @@ let timestamp_in_nano: BigUint = nanos + 1000 * (millis + 1000 * (secs + 60 * (m
 
 ## Other formats
 
-- ISO 8601 (RFC 3339)
+- [tailhook/humantime](https://github.com/tailhook/humantime)
+- ISO 8601 (and RFC 3339)
