@@ -76,20 +76,28 @@ sign = ("-"/"+") [ws]
 
 ### Pseudo data structure
 
-Deserializer must emit an error if a value cannot representable in the following datatype.
-
 ```rust
 struct Reduration {
-    days: Option<u32>, // 0 to 999_999_999
-    hours: Option<u32>, // 0 to 999_999_999
-    mins: Option<u32>, // 0 to 999_999_999
-    secs: Option<u32>, // 0 to 999_999_999
-    secs_frac: Option<u32>, // 0 to 999_999_999
-    millis: Option<u32>, // 0 to 999_999_999
-    millis_frac: Option<u32>, // 0 to 999_999
-    micros: Option<u32>, // 0 to 999_999_999
-    micros_frac: Option<u16>, // 0 to 999
-    nanos: Option<u32>, // 0 to 999_999_999
+    days: Dec9,
+    hours: Signed9,
+    mins: Signed9,
+    secs: Signed9,
+    secs_frac: Dec9,
+    millis: Signed9,
+    millis_frac: Dec6,
+    micros: Signed9
+    micros_frac: Dec3,
+    nanos: Signed9
+}
+
+struct Signed9(i32); // -999_999_999 to 999_999_999
+struct Dec9(u32); // 0 to 999_999_999
+struct Dec6(u32); // 0 to 999_999
+struct Dec3(u16); // 0 to 999
+
+enum Value<P, N> {
+    Positive(P),
+    Negative(N),
 }
 
 struct SignedReduration {
@@ -123,16 +131,16 @@ Every integer overflows in conversion between reduration and other representatio
 
 Reduration format can be used in both use-case, signed duration or unsigned duration, but a system must not allow both grammars `reduration` and `signed-reduration`.
 
-Regardless of which grammer, the `day-part` must be 0 or positive nanoseconds, and negative values must be rejected as invalid reduration.
+Regardless of which grammar, the `day-part` must be 0 or positive nanoseconds, and negative values must be rejected as invalid reduration.
 
 Valid strings:
 
-- `1 days`
+- `1 hours`
 - `-1 hours 61min`
 
 Invalid strings:
 
-- `-1 days`
+- `-1 hours`
 - `1 hours -61min`
 
 ### Leading zeros
@@ -160,9 +168,9 @@ A deserializer:
 
 A converter should have an option that let users choose `seil`, `floor`, or `round` as fallback logic on the precision error.
 
-### Memory efficient deserialization
+### Memory-efficient deserialization
 
-As shown in semantics/data structure section, naive numerical data structure takes over 256-bit. Not to take large memory, the following is recommended.
+As shown in the semantics/data structure section, naive numerical data structure takes not-tiny memory. The following technique is recommended for memory efficiency.
 
 ```rust
 let mut nanos = 0;
