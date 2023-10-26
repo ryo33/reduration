@@ -8,6 +8,7 @@ Reduration, a human-readable (relatively short) time duration format
 - `1 hours` (cannot be the singular form)
 - `2 days 2 nanos`
 - `9.58s`
+- `123_456_789 seconds`
 
 ## ABNF Grammar
 
