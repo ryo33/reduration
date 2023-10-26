@@ -124,13 +124,15 @@ Lack of precision must be reported as an error. There are two cases (into and fr
 
 Therefore, a user need to manually perform a round/ceil/floor before such a conversion.
 
-### Overflow
+### Integer overflow handling
 
 Every integer overflows in conversion between reduration and other representations must be reported as errors. A user still can ignore the overflow errors.
 
-### Signed or unsigned
+### Signed grammar and unsigned grammar
 
 Reduration format can be used in both use-case, signed duration or unsigned duration, but a system must not allow both grammars `reduration` and `signed-reduration`.
+
+### Negative values are prohibited
 
 Regardless of which grammar, the `day-part` must be 0 or positive nanoseconds, and negative values must be rejected as invalid reduration.
 
