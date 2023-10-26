@@ -12,19 +12,25 @@ Reduration, a human-readable (relatively short) time duration format
 ## ABNF Grammar
 
 ```abnf
-duration =  days   [ws hours]  [ws mins]   [ws secs]   [ws millis] [ws nanos]
-duration =/ hours  [ws mins]   [ws secs]   [ws millis] [ws nanos]
-duration =/ mins   [ws secs]   [ws millis] [ws nanos]
-duration =/ secs   [ws millis] [ws nanos]
-duration =/ millis [ws nanos]
+duration =  days   [ws hours]  [ws mins]   [ws secs]   [ws millis] [ws micros] [ws nanos]
+duration =/ hours  [ws mins]   [ws secs]   [ws millis] [ws micros] [ws nanos]
+duration =/ mins   [ws secs]   [ws millis] [ws micros] [ws nanos]
+duration =/ secs   [ws millis] [ws micros] [ws nanos]
+duration =/ millis [ws micros] [ws nanos]
+duration =/ micros [ws nanos]
 duration =/ nanos
 
-days   = dec                [ws] ("days"   | "d")
-hours  = dec                [ws] ("hours"  | "h")
-mins   = dec                [ws] ("mins"   | "m")
-secs   = dec ["." 1*6DIGIT] [ws] ("secs"   | "s")
-millis = dec ["." 1*3DIGIT] [ws] ("millis" | "ms")
-nanos  = dec                [ws] ("nanos"  | "ns")
+days   = dec [ws] ("days"   | "d")
+hours  = dec [ws] ("hours"  | "h")
+mins   = dec [ws] ("mins"   | "m")
+secs   = dec [ws] ("secs"   | "s")
+millis = dec [ws] ("millis" | "ms")
+micros = dec [ws] ("micros" | "us")
+nanos  = dec [ws] ("nanos"  | "ns")
+
+secs_frac   = dec ["." 1*9DIGIT] [ws] ("secs"   | "s")
+millis_frac = dec ["." 1*6DIGIT] [ws] ("millis" | "ms")
+micros_frac = dec ["." 1*3DIGIT] [ws] ("micros" | "us")
 
 dec = DIGIT *(DIGIT / "_")
 ```
@@ -37,7 +43,7 @@ Deserializer must emit an error if a value cannot representable in the following
 
 ```rust
 pub struct Reduration {
-    days: Option<32>, // 0 to 4_294_967_295
+    days: Option<u32>, // 0 to 4_294_967_295
     hours: Option<u32>, // 0 to 4_294_967_295
     mins: Option<u32>, // 0 to 4_294_967_295
     secs: Option<u32>, // 0 to 4_294_967_295
