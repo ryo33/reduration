@@ -26,6 +26,7 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
 - `9.58s` (shorthand style)
 - `1h -1s` (same as `3599s`)
 - `999_999_999 days` (999999999 is the max value for each field)
+- `plus 1 days` and `minus 1 days` (signed reduration)
 
 ## ABNF Grammar
 
