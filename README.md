@@ -23,14 +23,10 @@ duration =/ nanos
 days   = dec [ws] ("days"   | "d")
 hours  = dec [ws] ("hours"  | "h")
 mins   = dec [ws] ("mins"   | "m")
-secs   = dec [ws] ("secs"   | "s")
-millis = dec [ws] ("millis" | "ms")
-micros = dec [ws] ("micros" | "us")
+secs   = dec [ws] ("secs"   | "s")  / dec ["." 1*9DIGIT] [ws] ("secs"   | "s")
+millis = dec [ws] ("millis" | "ms") / dec ["." 1*6DIGIT] [ws] ("millis" | "ms")
+micros = dec [ws] ("micros" | "us") / dec ["." 1*3DIGIT] [ws] ("micros" | "us")
 nanos  = dec [ws] ("nanos"  | "ns")
-
-secs_frac   = dec ["." 1*9DIGIT] [ws] ("secs"   | "s")
-millis_frac = dec ["." 1*6DIGIT] [ws] ("millis" | "ms")
-micros_frac = dec ["." 1*3DIGIT] [ws] ("micros" | "us")
 
 dec = DIGIT *(DIGIT / "_")
 ```
