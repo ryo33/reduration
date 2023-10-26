@@ -57,20 +57,20 @@ micro-part =  micros-frac ; no nanos
 micro-part =/ micros [ws [sign] nanos]
 micro-part =/ nanos
 
-days   = 1*9dec [ws] ("days"   | "d")
-hours  = 1*9dec [ws] ("hours"  | "h")
-mins   = 1*9dec [ws] ("mins"   | "m")
-secs   = 1*9dec [ws] ("secs"   | "s")
-millis = 1*9dec [ws] ("millis" | "ms")
-micros = 1*9dec [ws] ("micros" | "us")
-nanos  = 1*9dec [ws] ("nanos"  | "ns")
+days   = 1*9dec [ws] ("days"   / "d")
+hours  = 1*9dec [ws] ("hours"  / "h")
+mins   = 1*9dec [ws] ("mins"   / "m")
+secs   = 1*9dec [ws] ("secs"   / "s")
+millis = 1*9dec [ws] ("millis" / "ms")
+micros = 1*9dec [ws] ("micros" / "us")
+nanos  = 1*9dec [ws] ("nanos"  / "ns")
 
-secs-frac   = 1*9dec ["." 1*9dec] [ws] ("secs"   | "s")
-millis-frac = 1*9dec ["." 1*6dec] [ws] ("millis" | "ms")
-micros-frac = 1*9dec ["." 1*3dec] [ws] ("micros" | "us")
+secs-frac   = 1*9dec ["." 1*9dec] [ws] ("secs"   / "s")
+millis-frac = 1*9dec ["." 1*6dec] [ws] ("millis" / "ms")
+micros-frac = 1*9dec ["." 1*3dec] [ws] ("micros" / "us")
 
 dec = DIGIT / "_"
-sign = ("-"/"+") [ws]
+sign = ("-" / "+") [ws]
 ```
 
 ## Semantics
