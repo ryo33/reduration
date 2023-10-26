@@ -1,55 +1,100 @@
 # Reduration
 
-Reduration, a human-readable (relatively short) time duration format
+Reduration, a human-readable second-wise time duration format
+
+## "calender-wise" vs "second-wise"
+
+Let:
+
+- "Calender-wise duration" ignores leap seconds when appending a duration to a specific date-time.
+- "Second-wise duration" just handles passed seconds.
+
+Reduration is designed and intended for the "second-wise" duration. Therefore:
+
+- it does not have second-ambiguous units, "month" or "year". "week" is not second-ambiguous but not included to keep it a small format.
+- it always interprets an hour as exactly 3600 seconds and a day as exactly 24 * 3600 seconds.
+
+## Use-cases
+
+- in a URL parameter: `?valid_for=1%20days`
+- serialization/deserialization: `"{\"valid_for\": \"2 hours\"}"`
 
 ## Example
 
 - `28 days`
-- `1 hours` (cannot be the singular form)
-- `2 days 2 nanos`
-- `9.58s`
-- `123_456_789 seconds`
+- `1 hours 1 nanos` (cannot be singular form)
+- `9.58s` (shorthand style)
+- `1h -1s` (same as `3599s`)
+- `999_999_999 days` (999999999 is the max value for each field)
 
 ## ABNF Grammar
 
 ```abnf
-duration =  days   [ws hours]  [ws mins]   [ws secs]   [ws millis] [ws micros] [ws nanos]
-duration =/ hours  [ws mins]   [ws secs]   [ws millis] [ws micros] [ws nanos]
-duration =/ mins   [ws secs]   [ws millis] [ws micros] [ws nanos]
-duration =/ secs   [ws millis] [ws micros] [ws nanos]
-duration =/ millis [ws micros] [ws nanos]
-duration =/ micros [ws nanos]
-duration =/ nanos
+; **case sensitive**
 
-days   = dec [ws] ("days"   | "d")
-hours  = dec [ws] ("hours"  | "h")
-mins   = dec [ws] ("mins"   | "m")
-secs   = dec [ws] ("secs"   | "s")  / dec ["." 1*9DIGIT] [ws] ("secs"   | "s")
-millis = dec [ws] ("millis" | "ms") / dec ["." 1*6DIGIT] [ws] ("millis" | "ms")
-micros = dec [ws] ("micros" | "us") / dec ["." 1*3DIGIT] [ws] ("micros" | "us")
-nanos  = dec [ws] ("nanos"  | "ns")
+reduration = day-part
+signed-reduration = ("plus" / "minus") day-part
 
-dec = DIGIT *(DIGIT / "_")
+day-part =  days [ws [sign] hour-part]
+day-part =/ hour-part
+
+hour-part =  hours [ws [sign] min-part]
+hour-part =/ min-part
+
+min-part =  mins [ws [sign] sec-part]
+min-part =/ sec-part
+
+sec-part =  secs-frac ; no milli-part
+sec-part =/ secs [ws [sign] milli-part]
+sec-part =/ milli-part
+
+milli-part =  millis-frac ; no micro-part
+milli-part =/ millis [ws [sign] micro-part]
+milli-part =/ micro-part
+
+micro-part =  micros-frac ; no nanos
+micro-part =/ micros [ws [sign] nanos]
+micro-part =/ nanos
+
+days   = 1*9dec [ws] ("days"   | "d")
+hours  = 1*9dec [ws] ("hours"  | "h")
+mins   = 1*9dec [ws] ("mins"   | "m")
+secs   = 1*9dec [ws] ("secs"   | "s")
+millis = 1*9dec [ws] ("millis" | "ms")
+micros = 1*9dec [ws] ("micros" | "us")
+nanos  = 1*9dec [ws] ("nanos"  | "ns")
+
+secs-frac   = 1*9dec ["." 1*9dec] [ws] ("secs"   | "s")
+millis-frac = 1*9dec ["." 1*6dec] [ws] ("millis" | "ms")
+micros-frac = 1*9dec ["." 1*3dec] [ws] ("micros" | "us")
+
+dec = DIGIT / "_"
+sign = ("-"/"+") [ws]
 ```
 
 ## Semantics
 
-### Data structure
+### Pseudo data structure
 
 Deserializer must emit an error if a value cannot representable in the following datatype.
 
 ```rust
-pub struct Reduration {
-    days: Option<u32>, // 0 to 4_294_967_295
-    hours: Option<u32>, // 0 to 4_294_967_295
-    mins: Option<u32>, // 0 to 4_294_967_295
-    secs: Option<u32>, // 0 to 4_294_967_295
-    secs_fraction: Option<u32>, // 0 to 999999999
-    millis: Option<u32>, // 0 to 4_294_967_295
-    millis_fraction: Option<u32>, // 0 to 999999
-    micros: Option<u32>, // 0 to 4_294_967_295
-    micros_fraction: Option<u16>, // 0 to 999
-    nanos: Option<u32>, // 0 to 4_294_967_295
+struct Reduration {
+    days: Option<u32>, // 0 to 999_999_999
+    hours: Option<u32>, // 0 to 999_999_999
+    mins: Option<u32>, // 0 to 999_999_999
+    secs: Option<u32>, // 0 to 999_999_999
+    secs_frac: Option<u32>, // 0 to 999_999_999
+    millis: Option<u32>, // 0 to 999_999_999
+    millis_frac: Option<u32>, // 0 to 999_999
+    micros: Option<u32>, // 0 to 999_999_999
+    micros_frac: Option<u16>, // 0 to 999
+    nanos: Option<u32>, // 0 to 999_999_999
+}
+
+struct SignedReduration {
+    minus: bool,
+    tail: Reduration,
 }
 ```
 
@@ -61,17 +106,63 @@ No leap second.
 let timestamp_in_nano: BigUint = nanos + 1000 * (millis + 1000 * (secs + 60 * (mins + 60 * (hours + 24 * days))));
 ```
 
-### Rounding or truncation
+### Precision (no rounding or truncation)
 
-Deserialization must not truncate or round the sub-seconds even if the system does not support microsec or nanosecs. Let users choose round or sail or floor within data conversion.
+Lack of precision must be reported as an error. There are two cases (into and from);
+
+1. a reduration object converted into other representation that lacks time precision to represent the same value;
+2. a reduration object converted from a value of other representation that has picoseconds-level or more granular values.
+
+Therefore, a user need to manually perform a round/ceil/floor before such a conversion.
 
 ### Overflow
 
-A deserializer must throw an error if overflow occurred while translate to target data.
+Every integer overflows in conversion between reduration and other representations must be reported as errors. A user still can ignore the overflow errors.
 
-## Memory efficient deserialization
+### Signed or unsigned
 
-As shown in semantics/data structure section, naive data structure for deserialization took over 256-bit. Not to take large memory, the following pseudo technique is recommended.
+Reduration format can be used in both use-case, signed duration or unsigned duration, but a system must not allow both grammars `reduration` and `signed-reduration`.
+
+Regardless of which grammer, the `day-part` must be 0 or positive nanoseconds, and negative values must be rejected as invalid reduration.
+
+Valid strings:
+
+- `1 days`
+- `-1 hours 61min`
+
+Invalid strings:
+
+- `-1 days`
+- `1 hours -61min`
+
+### Leading zeros
+
+Leading zeros are ignored.
+
+## Implementation
+
+### Serializer
+
+A serializer must follow the grammar.
+
+### Deserializer
+
+A deserializer:
+
+- must handle an input in UTF-8 encoding.
+- can allow incorrect casing like `1 Hours` or `1H`.
+- can allow incorrect spacing like `1   hours` (too many spaces) or `1mins2secs` (needs a space after `mins`).
+- can allow leading/trailing spaces.
+- can allow UTF-8 whitespaces.
+- should not allow other incorrect grammars not listed in the above.
+
+### Conversion to other representations
+
+A converter should have an option that let users choose `seil`, `floor`, or `round` as fallback logic on the precision error.
+
+### Memory efficient deserialization
+
+As shown in semantics/data structure section, naive numerical data structure takes over 256-bit. Not to take large memory, the following is recommended.
 
 ```rust
 let mut nanos = 0;
