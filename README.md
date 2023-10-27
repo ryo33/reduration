@@ -16,7 +16,7 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
 
 ## Use-cases
 
-- in a URL parameter: `?valid_for=1%20days`
+- in a URL parameter: `?valid_for=1%20days` instead of `?valid_for=86400`
 - serialization/deserialization: `"{\"valid_for\": \"2 hours\"}"`
 - in chat: "The token is valid for `300s`, not `3000s`."
 - 
