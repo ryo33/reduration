@@ -73,6 +73,7 @@ micros-frac = 1*9dec ["." 1*3dec] [ws] ("micros" / "us")
 
 dec = DIGIT / "_"
 sign = ("-" / "+") [ws]
+ws = " "
 ```
 
 ## Semantics
