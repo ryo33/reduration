@@ -18,6 +18,8 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
 
 - in a URL parameter: `?valid_for=1%20days`
 - serialization/deserialization: `"{\"valid_for\": \"2 hours\"}"`
+- in chat: "The token is valid for `300s`, not `3000s`."
+- 
 
 ## Example
 
@@ -26,7 +28,7 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
 - `9.58s` (shorthand style)
 - `1h -1s` (same as `3599s`)
 - `999_999_999 days` (999999999 is the max value for each field)
-- `plus 1 days` and `minus 1 days` (signed reduration)
+- `plus 1 days` and `minus 1 days` (plus/minus must be explicit for signed-reduration)
 
 ## ABNF Grammar
 
