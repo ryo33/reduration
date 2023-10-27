@@ -67,9 +67,9 @@ millis = 1*9dec [ws] ("millis" / "ms")
 micros = 1*9dec [ws] ("micros" / "us")
 nanos  = 1*9dec [ws] ("nanos"  / "ns")
 
-secs-frac   = 1*9dec ["." 1*9dec] [ws] ("secs"   / "s")
-millis-frac = 1*9dec ["." 1*6dec] [ws] ("millis" / "ms")
-micros-frac = 1*9dec ["." 1*3dec] [ws] ("micros" / "us")
+secs-frac   = 1*9dec "." 1*9dec [ws] ("secs"   / "s")
+millis-frac = 1*9dec "." 1*6dec [ws] ("millis" / "ms")
+micros-frac = 1*9dec "." 1*3dec [ws] ("micros" / "us")
 
 dec = DIGIT / "_"
 sign = ("-" / "+") [ws]
