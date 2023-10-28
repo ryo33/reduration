@@ -36,7 +36,12 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
   ```rust
   static DEFAULT_TTL: Duration = reduration!("1 hours");`
   ```
-- in a protocol, API reference, or API schema: `valid_for: reduration - ttl for this resouce.`
+- in a protocol, API reference, or API schema:
+  ```
+  id: uuid - ID for this resource
+  name: string - A name for this resource
+  valid_for: reduration - ttl for this resouce
+  ```
 
 ## Example
 
