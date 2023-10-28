@@ -16,10 +16,27 @@ Reduration is designed and intended for the "second-wise" duration. Therefore:
 
 ## Use-cases
 
-- in a URL parameter: `?valid_for=1%20days` instead of `?valid_for=86400`
-- serialization/deserialization: `"{\"valid_for\": \"2 hours\"}"`
 - in chat: "The token is valid for `300s`, not `3000s`."
-- 
+- in YAML:
+  ```yaml
+  cachePolicy:
+    defaultTTL: 30 mins
+  ```
+- in a URL parameter: `?valid_for=1days%20-1secs` instead of `?valid_for=86399`
+- serialization/deserialization: `"{\"valid_for\": \"2 hours\"}"` into/from
+  ```rust
+  #[derive(Serialize, Deserialize)]
+  struct Options {
+      #[serde(with = "reduration::serde::rich")]
+      valid_for: Duration
+  }
+  ```
+- in database: `INSERT INTO cache_ttl VALUES ('ryo33', '1h 2m 3.4s');
+- in a source code:
+  ```rust
+  static DEFAULT_TTL: Duration = reduration!("1 hours");`
+  ```
+- in a protocol, API reference, or API schema: `valid_for: reduration - ttl for this resouce.
 
 ## Example
 
@@ -152,6 +169,16 @@ Invalid strings:
 ### Leading zeros
 
 Leading zeros are ignored.
+
+### No floating point
+
+A fractional value must be handled as a pair of signed-int and unsigned-int, not floating point.
+
+Examples:
+
+- `1.234s` equals to `1s 234ms`
+- `1.23456` equals to `1s 234ms 560us`
+- `1s 23456.7us` equals to `1s 23456us 700ns`
 
 ## Implementation
 
