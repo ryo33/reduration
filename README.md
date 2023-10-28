@@ -111,7 +111,7 @@ struct Reduration {
     secs_frac: Dec9,
     millis: Signed9,
     millis_frac: Dec6,
-    micros: Signed9
+    micros: Signed9,
     micros_frac: Dec3,
     nanos: Signed9
 }
