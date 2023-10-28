@@ -180,6 +180,10 @@ Examples:
 - `1.23456` equals to `1s 234ms 560us`
 - `1s 23456.7us` equals to `1s 23456us 700ns`
 
+### Signed zero is zero
+
+`1h +0s` and `1h -0s` are same as `1h 0s` or just `1h`. 
+
 ## Implementation
 
 ### Serializer
