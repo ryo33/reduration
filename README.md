@@ -6,8 +6,8 @@ Reduration, a human-readable second-wise time duration format
 
 Let:
 
-- "Calender-wise duration" ignores leap seconds when appending a duration to a specific date-time.
-- "Second-wise duration" just handles passed seconds.
+- "Calender-wise duration" processes durations, such as 2 months, relative to a specific date-time. The value 2 simply advances the month by two regardless the number of days in those months, leap year, and leap second.
+- "Second-wise duration" just handles the number of elapsed seconds.
 
 Reduration is designed and intended for the "second-wise" duration. Therefore:
 
